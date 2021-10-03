@@ -4,23 +4,56 @@
 import * as React from 'react'
 import {Switch} from '../switch'
 
+// This function takes a variable number of functions to run,
+// and then will run them with their respective variable number of arguments
+function callAll(...fns) {
+  console.log(fns)
+  return (...args) => {
+    fns.forEach(fn => {
+      fn?.(...args)
+    })
+  }
+}
+
 function useToggle() {
   const [on, setOn] = React.useState(false)
   const toggle = () => setOn(!on)
 
+  function getTogglerProps({onClick, ...props} = {}) {
+    const obj = {
+      'aria-pressed': on,
+      onClick: callAll(onClick, toggle),
+      ...props,
+    }
+    console.log(obj)
+    return obj
+    // const retrieved = defaultToggleProps[props]
+    // console.log(retrieved)
+    // return defaultToggleProps[props]
+  }
+
   // 🐨 Add a property called `togglerProps`. It should be an object that has
   // `aria-pressed` and `onClick` properties.
   // 💰 {'aria-pressed': on, onClick: toggle}
-  return {on, toggle}
+  return {
+    on,
+    getTogglerProps,
+  }
 }
 
 function App() {
-  const {on, togglerProps} = useToggle()
+  const {on, getTogglerProps} = useToggle()
   return (
     <div>
-      <Switch on={on} {...togglerProps} />
+      <Switch {...getTogglerProps({on})} />
       <hr />
-      <button aria-label="custom-button" {...togglerProps}>
+      <button
+        {...getTogglerProps({
+          'aria-label': 'custom-button',
+          onClick: () => console.info('onButtonClick'),
+          id: 'custom-button-id',
+        })}
+      >
         {on ? 'on' : 'off'}
       </button>
     </div>

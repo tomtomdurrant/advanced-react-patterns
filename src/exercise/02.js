@@ -14,7 +14,11 @@ function Toggle({children}) {
   // 💰 React.Children.map(props.children, child => {/* return child clone here */})
   // 📜 https://reactjs.org/docs/react-api.html#reactchildren
   // 📜 https://reactjs.org/docs/react-api.html#cloneelement
-  return React.Children.map(children, (child, index) => {
+  return React.Children.map(children, child => {
+    if (typeof child.type !== 'function') {
+      console.log('the child is a native DOM node, not a React function')
+      return child
+    }
     return React.cloneElement(child, {
       // onClick: toggle,
       on: on,
@@ -46,6 +50,7 @@ function App() {
       <Toggle>
         <ToggleOn>The button is on</ToggleOn>
         <ToggleOff>The button is off</ToggleOff>
+        <span>Hello</span>
         <ToggleButton />
       </Toggle>
     </div>
